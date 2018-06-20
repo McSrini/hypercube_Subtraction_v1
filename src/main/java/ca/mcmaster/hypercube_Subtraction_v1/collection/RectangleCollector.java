@@ -41,6 +41,8 @@ public class RectangleCollector {
         this.leaf_OneFixedVariables = leaf.oneFixedVariables;        
     }  
     
+
+    
     
     public Rectangle collectBiggest_INFeasibleHyperCube (LowerBoundConstraint lbc) {
     

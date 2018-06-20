@@ -6,6 +6,7 @@
 package ca.mcmaster.hypercube_Subtraction_v1.common;
 
 import static ca.mcmaster.hypercube_Subtraction_v1.Constants.ZERO;
+import ca.mcmaster.hypercube_Subtraction_v1.TestDriver;
 
 /**
  *
@@ -27,8 +28,10 @@ public class VariableCoefficientTuple  implements Comparable{
         int result =ZERO;
         //return this - other
         if (ZERO== Double.compare(Math.abs(this.coeff ), Math.abs(  ((VariableCoefficientTuple)other).coeff ))) {
-            //alphabetic compare
-            result = this.varName.compareTo(  ((VariableCoefficientTuple)other).varName  );
+            //largest magnitude objective coefficient first 
+            double thisMagn = TestDriver.objective.getObjectiveCoeffMagnitude(this.varName);
+            double otherMagn= TestDriver.objective.getObjectiveCoeffMagnitude(((VariableCoefficientTuple)other).varName);
+            result = Double.compare(  otherMagn , thisMagn )   ; //this.varName.compareTo(  ((VariableCoefficientTuple)other).varName  );
         }else {
             result= Double.compare(Math.abs(this.coeff ), Math.abs(  ((VariableCoefficientTuple)other).coeff ));
         }

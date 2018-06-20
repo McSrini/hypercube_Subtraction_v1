@@ -19,15 +19,15 @@ import java.util.Map.Entry;
  */
 public class BranchingVariableSuggestor {
     
-    private Map<String, Integer> frequencyMap = new TreeMap <String, Integer> ();
+    public Map<String, Integer> frequencyMap = new TreeMap <String, Integer> ();
     
     public BranchingVariableSuggestor (){
         
     }
     
-    public List<String> getBranchingVar (List<Rectangle> rects) {
+    public List<String> getBranchingVar (List<Rectangle> rects, List<String> excludedVars) {
         
-        this.initializeMap(rects);
+        this.initializeMap(rects,excludedVars);
         
         List<String> result = new ArrayList<String> ();
         int maxFreq = Collections.max(frequencyMap.values());
@@ -40,16 +40,17 @@ public class BranchingVariableSuggestor {
         return result;
     }
     
-    private void initializeMap (List<Rectangle> rects){
+    private void initializeMap (List<Rectangle> rects,List<String> excludedVars){
         
         this.frequencyMap.clear();
         
         for (Rectangle rect : rects){
+             
             for (String var : rect.zeroFixedVariables){
-                updateFrequency (var);
+                if (!excludedVars.contains(var)) updateFrequency (var);
             }
             for (String var : rect.oneFixedVariables){
-                updateFrequency (var);
+                if (!excludedVars.contains(var)) updateFrequency (var);
             }
         }
     }

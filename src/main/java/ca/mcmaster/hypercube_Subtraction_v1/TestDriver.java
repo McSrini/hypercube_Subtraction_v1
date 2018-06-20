@@ -8,18 +8,11 @@ package ca.mcmaster.hypercube_Subtraction_v1;
 import ca.mcmaster.hypercube_Subtraction_v1.common.Objective;
 import ca.mcmaster.hypercube_Subtraction_v1.common.LowerBoundConstraint;
 import static ca.mcmaster.hypercube_Subtraction_v1.Constants.*;
-import static ca.mcmaster.hypercube_Subtraction_v1.Parameters.*;
-import ca.mcmaster.hypercube_Subtraction_v1.collection.BranchingVariableSuggestor;
-import ca.mcmaster.hypercube_Subtraction_v1.collection.LeafNode;
-import ca.mcmaster.hypercube_Subtraction_v1.collection.Rectangle;
-import ca.mcmaster.hypercube_Subtraction_v1.collection.RectangleCollector;
-import ca.mcmaster.hypercube_Subtraction_v1.common.VariableCoefficientTuple;
-import ca.mcmaster.hypercube_Subtraction_v1.cplex.CplexTree;
+import static ca.mcmaster.hypercube_Subtraction_v1.Parameters.*;  
+import ca.mcmaster.hypercube_Subtraction_v1.cplexRef.CplexRefTree;
 import ca.mcmaster.hypercube_Subtraction_v1.utils.MIP_Reader;
 import ilog.cplex.IloCplex;
-import static java.lang.System.exit;
-import java.util.ArrayList;
-import java.util.Collections;
+import static java.lang.System.exit; 
 import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -45,7 +38,7 @@ public class TestDriver {
     public static  List<String> allVariablesInModel ;
     
     static {
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.OFF);
         PatternLayout layout = new PatternLayout("%5p  %d  %F  %L  %m%n");     
         try {
             logger.addAppender(new  RollingFileAppender(layout,LOG_FOLDER+TestDriver.class.getSimpleName()+ LOG_FILE_EXTENSION));
@@ -63,17 +56,20 @@ public class TestDriver {
             IloCplex mip =  new IloCplex();
             mip.importModel(MIP_FILENAME);
             mip.exportModel(MIP_FILENAME+ ".lp");
-            mipConstraintList= MIP_Reader.getConstraints(mip);
-            objective= MIP_Reader.getObjective(mip);
+           
             allVariablesInModel = MIP_Reader.getVariables(mip) ;
+            objective= MIP_Reader.getObjective(mip);            
+            mipConstraintList= MIP_Reader.getConstraints(mip);
 
             logger.debug ("Collected objective and constraints" ) ;
 
-            CplexTree cplexTree = new CplexTree () ;
-            cplexTree.solve();
+            CplexRefTree cplexRefTree = new CplexRefTree () ;
+            cplexRefTree.solve();
              
         }catch (Exception ex){
             System.err.println(ex) ;
+            System.err.println(ex.getMessage()) ;
+            ex.printStackTrace();
             exit(ONE);
         }
         

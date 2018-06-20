@@ -21,6 +21,8 @@ public class Constants {
     public static final String LOG_FOLDER="logs/"; 
     public static final String LOG_FILE_EXTENSION = ".log";
     
+    public static final String MIP_ROOT_ID = "Node0";
+    
     public static final String HALT_FILE="haltfile.txt"; 
     
     public static String NAME_FOR_EQUALITY_CONSTRAINT_UPPER_BOUND_PORTION = "NAME_FOR_EQUALITY_CONSTRAINT_UPPER_BOUND_PORTION";

@@ -44,7 +44,12 @@ public class LeafNode extends Rectangle{
             }
         }
     }
-    
+        
+    public boolean isVariableZeroAtBestVertex (String var) {
+        //is this variable which is about to be branched on, zero at best vertex?
+        return this.bestVertex_zeroFixedVariables.contains(var);
+    }
+        
     public List<LowerBoundConstraint> getConstraintsViolatedAtBestVertex(){
         List<LowerBoundConstraint> violatedConstraints = new ArrayList<LowerBoundConstraint>();
         

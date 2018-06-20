@@ -21,11 +21,11 @@ public class UpperBoundConstraint {
     
     public List<VariableCoefficientTuple>   sortedConstraintExpr = new ArrayList<VariableCoefficientTuple>() ;     
     public double upperBound;     
-    public String name;
+     
      
     //private constructor for local use in this file
-    private   UpperBoundConstraint( String name  ){
-        this.name = name;
+    private   UpperBoundConstraint(    ){
+       
     }
     
     public boolean isTrivially_Infeasible ( boolean isStrict){
@@ -37,9 +37,9 @@ public class UpperBoundConstraint {
     }
     
     public UpperBoundConstraint (LowerBoundConstraint lbc) {
-        this.sortedConstraintExpr.addAll(lbc.sortedConstraintExpr );
+        this.sortedConstraintExpr= lbc.sortedConstraintExpr ;
         this.upperBound = lbc.lowerBound;
-        this.name=lbc.name;
+        
     }
     
     //even with the worst possible choice of free vars, am I still feasible ?
@@ -64,7 +64,7 @@ public class UpperBoundConstraint {
     //constraint  , disregarding fixed vars    
     public UpperBoundConstraint  getReducedConstraint (  List <String> varsFixedAtZero, List <String> varsFixedAtOne){
         
-        UpperBoundConstraint reducedConstraint = new UpperBoundConstraint(this.name);
+        UpperBoundConstraint reducedConstraint = new UpperBoundConstraint( );
         
         reducedConstraint.sortedConstraintExpr = new ArrayList<VariableCoefficientTuple> ();
         reducedConstraint.upperBound = this.upperBound;
