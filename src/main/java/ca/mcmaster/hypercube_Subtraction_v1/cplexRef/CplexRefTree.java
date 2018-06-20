@@ -32,7 +32,15 @@ public class CplexRefTree {
                 
         IloLPMatrix lpMatrix = (IloLPMatrix)cplex.LPMatrixIterator().next();
         RefBranchHandler  rbh = new RefBranchHandler  ( lpMatrix.getNumVars());
-        cplex.use (rbh);
+        
+        //turn this to true to compare our branching method with CPLEX native branching
+        boolean useCplexDefaultBranching = false; 
+        if (useCplexDefaultBranching) {
+            cplex.use (new EmptyBranchCallback());
+        } else {
+            cplex.use (rbh);
+        }
+        
     }
     
     public void solve () throws IloException {
