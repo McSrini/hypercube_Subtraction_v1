@@ -26,6 +26,8 @@ public class Parameters {
     //public static final String MIP_FILENAME = "seymour-disj-10.mps";
     public static final String MIP_FILENAME = "p6b.mps";
     
+    
+    public static final int RAMP_UP_TO_THIS_MANY_LEAFS = 1000000;
    
     public static boolean USE_STRICT_INEQUALITY_IN_MIP = false;
    

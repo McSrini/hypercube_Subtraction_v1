@@ -5,9 +5,11 @@
  */
 package ca.mcmaster.hypercube_Subtraction_v1.cplexRef;
 
+import static ca.mcmaster.hypercube_Subtraction_v1.Constants.MIP_ROOT_ID;
 import static ca.mcmaster.hypercube_Subtraction_v1.Constants.ONE;
 import static ca.mcmaster.hypercube_Subtraction_v1.Constants.TWO; 
 import static ca.mcmaster.hypercube_Subtraction_v1.Constants.ZERO;
+import static ca.mcmaster.hypercube_Subtraction_v1.Parameters.RAMP_UP_TO_THIS_MANY_LEAFS;
 import ca.mcmaster.hypercube_Subtraction_v1.TestDriver;
 import ca.mcmaster.hypercube_Subtraction_v1.collection.BranchingVariableSuggestor;
 import ca.mcmaster.hypercube_Subtraction_v1.collection.LeafNode;
@@ -34,6 +36,8 @@ public class RefBranchHandler  extends IloCplex.BranchCallback{
     private double[ ][] bounds ;
     private IloNumVar[][] vars;
     private IloCplex.BranchDirection[ ][]  dirs;
+    
+    private  boolean isRampUpComplete = false;
      
     public RefBranchHandler (IloNumVar[] variables) {
         for (IloNumVar var : variables) {
@@ -48,13 +52,15 @@ public class RefBranchHandler  extends IloCplex.BranchCallback{
         
         if ( getNbranches()> ZERO ){  
             
+            //take cplex default branching after ramp up
             
+            boolean isMipRoot = ( getNodeId().toString()).equals( MIP_ROOT_ID);
                        
             //get the node attachment for this node, any child nodes will accumulate the branching conditions
-            boolean isMipRoot = false;
-            if (null==getNodeData()){
+            
+            if (isMipRoot){
                 //root of mip
-                isMipRoot=true;
+                
                 NodePayload data = new NodePayload (  );
                 setNodeData(data);                
             } 
@@ -62,10 +68,15 @@ public class RefBranchHandler  extends IloCplex.BranchCallback{
             NodePayload nodeData = (NodePayload) getNodeData();
             double lpEstimate = getObjValue();
             
-            //get all hypercubes
+            boolean wasRampupComplete = isRampUpComplete;
+            isRampUpComplete=    isRampUpComplete || ( getNremainingNodes64()> RAMP_UP_TO_THIS_MANY_LEAFS);
+            
+            if (!wasRampupComplete && isRampUpComplete) {
+                System.out.println("RAMP UP PHASE IS OVER") ;
+            }
             
             if (isMipRoot) {
-                
+                //get all hypercubes
                 LeafNode thisLeaf = new LeafNode ( nodeData.zeroFixedVars , nodeData.oneFixedVars) ; 
                 RectangleCollector collector =   new RectangleCollector(thisLeaf);
                 nodeData.hypercubesList = new ArrayList<Rectangle>();
@@ -75,20 +86,18 @@ public class RefBranchHandler  extends IloCplex.BranchCallback{
                     //logger.debug ("biggest infes rect for " +lbc  + " is " + hyperCube); 
                     nodeData.hypercubesList.add(hyperCube);
                 }
-            } else if (null ==nodeData.hypercubesList|| nodeData.hypercubesList.size()==ZERO) {                
-                //will use cplex default branch variable
             } else {
-                //non mip root, and non null hypercube list, means we have a node with hypercubes passed down from parent
-                //use these hypercubes
-            }
+                //use cplex default branching, or use hyper cubes got from parent
+            } 
+                         
             
-            // vars nneded for child node creation 
+            // vars needed for child node creation 
             vars = new IloNumVar[TWO][] ;
             bounds = new double[TWO ][];
             dirs = new  IloCplex.BranchDirection[ TWO][];
              
             //get branching var suggestion from hypercube list, if available
-            if (null !=nodeData.hypercubesList && nodeData.hypercubesList.size()>ZERO) {   
+            if (null !=nodeData && !  isRampUpComplete) {   
                 List<String> suggestedBranchingVars=new ArrayList<String>();
                 
                 List<String> excludedVars=new ArrayList<String>();
@@ -113,16 +122,13 @@ public class RefBranchHandler  extends IloCplex.BranchCallback{
                 makeBranch( vars[ONE],  bounds[ONE],dirs[ONE],   lpEstimate, oneChild_payload  );
 
             }else {
-                
-                //actually this section should never be entered for p6b
-                //if no hypercubes for p6b, means that this node is feasible so will not be branched
-                
+                                
                 //use cplex default
                 getBranches( vars, bounds,  dirs) ;
                
                 //create both kids
-                makeBranch( vars[ZERO],  bounds[ZERO],dirs[ZERO],  lpEstimate  ,  new NodePayload());
-                makeBranch( vars[ONE],  bounds[ONE],dirs[ONE],   lpEstimate,  new NodePayload());
+                makeBranch( vars[ZERO],  bounds[ZERO],dirs[ZERO],  lpEstimate   );
+                makeBranch( vars[ONE],  bounds[ONE],dirs[ONE],   lpEstimate);
             }
             
         }
