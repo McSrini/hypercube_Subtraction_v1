@@ -9,10 +9,13 @@ import ca.mcmaster.hypercube_Subtraction_v1.common.Objective;
 import ca.mcmaster.hypercube_Subtraction_v1.common.LowerBoundConstraint;
 import static ca.mcmaster.hypercube_Subtraction_v1.Constants.*;
 import static ca.mcmaster.hypercube_Subtraction_v1.Parameters.*;  
+import ca.mcmaster.hypercube_Subtraction_v1.collection.Rectangle;
 import ca.mcmaster.hypercube_Subtraction_v1.cplexRef.CplexRefTree;
+import ca.mcmaster.hypercube_Subtraction_v1.merge.RectangleMerger;
 import ca.mcmaster.hypercube_Subtraction_v1.utils.MIP_Reader;
 import ilog.cplex.IloCplex;
 import static java.lang.System.exit; 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -52,6 +55,8 @@ public class TestDriver {
     
     public static void main(String[] args) throws Exception {
          
+    
+        
         try {
             IloCplex mip =  new IloCplex();
             mip.importModel(MIP_FILENAME);

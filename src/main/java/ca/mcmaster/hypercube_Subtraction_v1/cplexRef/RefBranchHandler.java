@@ -16,18 +16,20 @@ import ca.mcmaster.hypercube_Subtraction_v1.collection.LeafNode;
 import ca.mcmaster.hypercube_Subtraction_v1.collection.Rectangle;
 import ca.mcmaster.hypercube_Subtraction_v1.collection.RectangleCollector;
 import ca.mcmaster.hypercube_Subtraction_v1.common.LowerBoundConstraint;
+import ca.mcmaster.hypercube_Subtraction_v1.merge.RectangleMerger;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.TreeMap; 
 
 /**
  *
  * @author tamvadss
  */
+import static java.lang.System.exit;
 public class RefBranchHandler  extends IloCplex.BranchCallback{ 
     
     private BranchingVariableSuggestor branchingVarSuggestor = new BranchingVariableSuggestor();
@@ -86,6 +88,16 @@ public class RefBranchHandler  extends IloCplex.BranchCallback{
                     //logger.debug ("biggest infes rect for " +lbc  + " is " + hyperCube); 
                     nodeData.hypercubesList.add(hyperCube);
                 }
+                
+                //merge and absorb hypercubes
+                RectangleMerger merger = new RectangleMerger (nodeData.hypercubesList) ;
+                nodeData.hypercubesList= merger.absorbAndMerge() ;
+                
+                if( merger.isMIP_Infeasible) {
+                    System.out.println("MIP is unfeasible; no need for branching") ;
+                    exit(ZERO);
+                }
+                        
             } else {
                 //use cplex default branching, or use hyper cubes got from parent
             } 

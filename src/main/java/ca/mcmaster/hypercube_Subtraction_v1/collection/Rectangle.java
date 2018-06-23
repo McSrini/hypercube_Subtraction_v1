@@ -5,6 +5,8 @@
  */
 package ca.mcmaster.hypercube_Subtraction_v1.collection;
  
+import static ca.mcmaster.hypercube_Subtraction_v1.Constants.ONE;
+import static ca.mcmaster.hypercube_Subtraction_v1.Constants.ZERO;
 import ilog.concert.IloException;
 import static java.lang.System.exit;
 import java.util.ArrayList;
@@ -30,6 +32,113 @@ public class Rectangle {
         this.oneFixedVariables  .addAll( oneFixedVariables);      
     }
     
+    public int getSize () {
+        return zeroFixedVariables.size()+ this.oneFixedVariables.size();
+    }
+    
+    //if other rect is complimenarty , then return merged rect else return null
+    public Rectangle mergeIfComplimentary (Rectangle other) {
+        Rectangle result = null;
+        
+        int myZeroSize = this.zeroFixedVariables.size();
+        int myOneSize = this.oneFixedVariables.size();
+        int otherZeroSize = other.zeroFixedVariables.size();
+        int otherOneSize = other.oneFixedVariables.size();
+        
+        boolean isSizeMatchOne = ( (myZeroSize == otherZeroSize-ONE) &&(myOneSize==otherOneSize+ONE)) ;
+        boolean isSizeMatchTwo =   ( (myZeroSize == otherZeroSize+ONE) &&(myOneSize==otherOneSize-ONE)) ;
+        
+        boolean isComplimentary = true;
+        
+        if (isSizeMatchOne) {
+            List < String> extraZeroVar = new ArrayList<String> ();
+            for (String var : other.zeroFixedVariables) {
+                if ( !this.zeroFixedVariables.contains(var)) extraZeroVar.add(var);
+                if (extraZeroVar.size()>ONE){
+                    //not complimentary
+                    isComplimentary= false;
+                    break;
+                }
+            }
+            
+            List < String> extraOneVar = new ArrayList<String> ();
+            if (isComplimentary) {
+                for (String var : this.oneFixedVariables  ) {
+                    if ( !other.oneFixedVariables.contains(var)) extraOneVar.add(var);
+                    if (extraOneVar.size()>ONE){
+                        //not complimentary
+                        isComplimentary= false;
+                        break;
+                    }
+                }
+            }
+            
+            if (isComplimentary && extraOneVar.get(ZERO).equals(extraZeroVar.get(ZERO))) {
+                //well and truly complimentary
+                result = new Rectangle (this.zeroFixedVariables,other.oneFixedVariables) ;
+            }
+            
+        }else if (isSizeMatchTwo) {
+            
+            // ( (myZeroSize == otherZeroSize+ONE) &&(myOneSize==otherOneSize-ONE))
+            
+            List < String> extraZeroVar = new ArrayList<String> ();
+            for (String var : this.zeroFixedVariables) {
+                if ( !other.zeroFixedVariables.contains(var)) extraZeroVar.add(var);
+                if (extraZeroVar.size()>ONE){
+                    //not complimentary
+                    isComplimentary= false;
+                    break;
+                }
+            }
+            
+            List < String> extraOneVar = new ArrayList<String> ();
+            if (isComplimentary) {
+                for (String var : other.oneFixedVariables  ) {
+                    if ( !this.oneFixedVariables.contains(var)) extraOneVar.add(var);
+                    if (extraOneVar.size()>ONE){
+                        //not complimentary
+                        isComplimentary= false;
+                        break;
+                    }
+                }
+            }
+            
+            if (isComplimentary && extraOneVar.get(ZERO).equals(extraZeroVar.get(ZERO))) {
+                //well and truly complimentary
+                result = new Rectangle (other.zeroFixedVariables,this.oneFixedVariables) ;
+            }
+        }
+        
+        return result;
+    }
+    
+    //is other absorbed into this ?
+    public boolean isAbsorbed (Rectangle other) {
+        boolean result = true ;
+        
+        //check if all my zero fixings are in other
+        for (String var : this.zeroFixedVariables){
+            if (!other.zeroFixedVariables.contains(var)) {
+                result = false ;
+                break;
+            }   
+        }
+        
+        //check if all my one fixings are in other
+        if (result) {
+            for (String var : this.oneFixedVariables){
+                if (!other.oneFixedVariables.contains(var)) {
+                    result = false ;
+                    break;
+                }   
+            }
+        }
+        
+        return result;
+    }
+    
+     
     /*public String toString (){
         
         String result=" "; 
